@@ -36,6 +36,13 @@
         </h1>
         
     </main>
+    <div class="mt-6 text-center">
+    <a href="{{ route('seller.auth') }}" 
+       class="px-6 py-3 bg-green-600 text-black rounded hover:bg-green-700">
+       Want to Sell?
+    </a>
+</div>
+
 
 
 </body>
