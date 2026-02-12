@@ -4,7 +4,6 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SellerResource\Pages;
 use App\Models\Seller;
-use App\Models\User;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -13,37 +12,24 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SellerVerifiedMail;
 
-
 class SellerResource extends Resource
 {
     protected static ?string $model = Seller::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationLabel = 'Sellers';
- 
     protected static ?string $pluralModelLabel = 'Sellers';
 
-    /**
-     * Only show users with role = seller
-     */
-   public static function getEloquentQuery(): Builder
-{
-    return parent::getEloquentQuery();
-}
-
-
-    /**
-     * No create form (sellers register themselves)
-     */
-    public static function form(Form $form): Form
+    public static function getEloquentQuery(): Builder
     {
-        return $form
-            ->schema([]);
+        return parent::getEloquentQuery();
     }
 
-    /**
-     * Seller table in admin panel
-     */
+    public static function form(Form $form): Form
+    {
+        return $form->schema([]);
+    }
+
     public static function table(Table $table): Table
     {
         return $table
@@ -56,13 +42,18 @@ class SellerResource extends Resource
                     ->searchable()
                     ->sortable(),
 
+                Tables\Columns\TextColumn::make('state')->label('State'),
+                Tables\Columns\TextColumn::make('district')->label('District'),
+                Tables\Columns\TextColumn::make('village')->label('Village'),
+                Tables\Columns\TextColumn::make('pincode')->label('Pincode'),
+
                 Tables\Columns\BadgeColumn::make('is_verified')
-        ->label('Verification Status')
-        ->formatStateUsing(fn ($state) => $state ? 'Verified' : 'Pending')
-        ->colors([
-            'success' => fn ($state) => $state,
-            'warning' => fn ($state) => ! $state,
-        ]),
+                    ->label('Verification Status')
+                    ->formatStateUsing(fn ($state) => $state ? 'Verified' : 'Pending')
+                    ->colors([
+                        'success' => fn ($state) => $state,
+                        'warning' => fn ($state) => ! $state,
+                    ]),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Registered On')
@@ -71,49 +62,26 @@ class SellerResource extends Resource
             ])
             ->actions([
                 Tables\Actions\Action::make('verify')
-    ->label('Verify')
-    ->icon('heroicon-o-check-circle')
-    ->color('success')
-    ->visible(fn ($record) => $record->is_verified == false)
-    ->action(function ($record) {
-        $record->update([
-            'is_verified' => true,
-        ]);
-        
-        Mail::to($record->email)
-            ->send(new SellerVerifiedMail($record));
-    }),
+                    ->label('Verify')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->visible(fn ($record) => ! $record->is_verified)
+                    ->action(function ($record) {
+                        $record->update([
+                            'is_verified' => true,
+                        ]);
 
-
-                Tables\Actions\Action::make('reject')
-                    ->label('Reject')
-                    ->color('danger')
-                    ->icon('heroicon-o-x-circle')
-                    ->visible(fn ($record) => $record->status === 'pending')
-                    ->action(fn ($record) => $record->update([
-                        'status' => 'rejected',
-                    ])),
-
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                        Mail::to($record->email)
+                            ->send(new SellerVerifiedMail($record));
+                    }),
             ]);
     }
 
-    /**
-     * No relations for now
-     */
     public static function getRelations(): array
     {
         return [];
     }
 
-    /**
-     * Disable create page
-     */
     public static function getPages(): array
     {
         return [
@@ -121,9 +89,9 @@ class SellerResource extends Resource
             'edit'  => Pages\EditSeller::route('/{record}/edit'),
         ];
     }
-    public static function canViewAny(): bool
-{
-    return true;
-}
 
+    public static function canViewAny(): bool
+    {
+        return true;
+    }
 }

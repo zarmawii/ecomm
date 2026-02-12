@@ -12,16 +12,22 @@ class RedirectIfAuthenticated
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next, string ...$guards): Response
     {
-        $guards = empty($guards) ? [null] : $guards;
+        // If no guard passed, default to 'web' (normal users)
+        $guards = empty($guards) ? ['web'] : $guards;
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::HOME);
+                // Redirect based on guard
+                switch ($guard) {
+                    case 'seller':
+                        return redirect()->route('seller.dashboard');
+                    case 'web':
+                    default:
+                        return redirect(RouteServiceProvider::HOME);
+                }
             }
         }
 

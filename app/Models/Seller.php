@@ -14,9 +14,17 @@ class Seller extends Authenticatable
         'email',
         'password',
         'is_verified',
+        'state',
+        'district',
+        'village',
+        'pincode',
     ];
 
     protected $hidden = [
         'password',
+    ];
+
+    protected $casts = [
+        'is_verified' => 'boolean',
     ];
 }

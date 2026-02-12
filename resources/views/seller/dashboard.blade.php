@@ -1,4 +1,12 @@
 <x-guest-layout>
+
+     @if (session('success'))
+    <div class="mb-4 rounded bg-green-100 border border-green-400 text-green-700 px-4 py-3">
+        {{ session('success') }}
+    </div>
+@endif
+
+
     <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
         <h1 class="text-3xl font-bold mb-6">Welcome, {{ Auth::guard('seller')->user()->name }}!</h1>
 
@@ -39,4 +47,9 @@
             </div>
         </div>
     </div>
+    <a href="{{ route('seller.products.create') }}"
+   class="text-blue-500 hover:underline">
+   Add Product
+</a>
+
 </x-guest-layout>
