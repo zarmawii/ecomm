@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use Razorpay\Api\Api;
+use App\Models\Payment;
 
 class CartController extends Controller
 {
@@ -11,7 +13,46 @@ class CartController extends Controller
     public function index()
     {
         $cart = session()->get('cart', []);
-        return view('cart.index', compact('cart'));
+        $total = 0;
+
+        foreach ($cart as $item) {
+            $total += $item['price'] * $item['quantity'];
+        }
+
+        // Only create Razorpay order if cart is not empty
+        $orderId = null;
+        if (!empty($cart)) {
+            $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+            $order = $api->order->create([
+                'receipt' => 'order_' . uniqid(),
+                'amount' => $total * 100, // convert rupees to paise
+                'currency' => 'INR',
+                'payment_capture' => 1
+            ]);
+            $orderId = $order['id'];
+
+            // Save a pending payment record
+            Payment::create([
+                'name' => auth()->user()->name,
+                'email' => auth()->user()->email,
+                'phone' => auth()->user()->phone ?? '',
+                'amount' => $total,
+                'order_id' => $orderId,
+                'status' => 0
+            ]);
+        }
+
+        // Pass all Razorpay variables to Blade
+        return view('cart.index', [
+            'cart' => $cart,
+            'total' => $total,
+            'razorpayKey' => env('RAZORPAY_KEY'),
+            'amount' => $total,
+            'name' => auth()->user()->name,
+            'email' => auth()->user()->email,
+            'phone' => auth()->user()->phone ?? '',
+            'orderId' => $orderId
+        ]);
     }
 
     // Add Product

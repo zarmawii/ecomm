@@ -4,72 +4,50 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
-use App\Models\Payment;
+use Illuminate\Support\Facades\Auth;
 
 class RazorpayController extends Controller
 {
+    // Show payment page (optional)
     public function index()
     {
         return view('razorpay.index');
     }
 
+    // Create Razorpay order
     public function payment(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|email',
-            'phone' => 'required',
-            'amount' => 'required|numeric|min:1',
-        ]);
-
         $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
 
-        $order = $api->order->create([
-            'receipt' => 'order_' . uniqid(),
-            'amount' => $request->amount * 100, // Convert to paise
-            'currency' => 'INR',
-            'payment_capture' => 1
+        $amount = $request->amount * 100; // convert to paise
+        $order  = $api->order->create([
+            'receipt'         => 'order_' . time(),
+            'amount'          => $amount,
+            'currency'        => 'INR',
+            'payment_capture' => 1,
         ]);
 
-        $payment = Payment::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'amount' => $request->amount,
+        return response()->json([
             'order_id' => $order['id'],
-            'status' => 0
-        ]);
-
-        return view('razorpay.payment', [
-            'orderId' => $order['id'],
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'amount' => $request->amount,
-            'razorpayKey' => env('RAZORPAY_KEY'),
+            'amount'   => $order['amount'],
         ]);
     }
 
+    // Handle payment success
     public function success(Request $request)
     {
-        if (!$request->razorpay_payment_id || !$request->razorpay_order_id) {
-            return back()->with('error', 'Payment failed. Please try again.');
-        }
+        // Optional: Verify payment signature if needed
 
-        $payment = Payment::where('order_id', $request->razorpay_order_id)->first();
+        // You can save order details to DB here
+        // Example:
+        // Order::create([
+        //     'user_id' => Auth::id(),
+        //     'product_name' => $request->name,
+        //     'amount' => $request->amount,
+        //     'payment_id' => $request->razorpay_payment_id,
+        // ]);
 
-        if (!$payment) {
-            return back()->with('error', 'Invalid payment record.');
-        }
-
-        $payment->update([
-            'razorpay_payment_id' => $request->razorpay_payment_id,
-            'status' => 1 // Mark as successful
-        ]);
-
-        return redirect('/razorpay')->with([
-            'success' => 'Payment Successful!',
-            'payment' => $payment
-        ]);
+        return redirect()->route('dashboard')
+            ->with('success', 'Your payment for ' . $request->name . ' of ₹' . $request->amount . ' was successful!');
     }
 }
