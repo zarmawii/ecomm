@@ -1,87 +1,113 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use App\Models\Product;
+
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\SellerLoginController;
-use Illuminate\Support\Facades\Route;
-use App\Models\Seller;
-
+use App\Http\Controllers\Auth\SellerRegisterController;
+use App\Http\Controllers\SellerProductController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\CartController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application.
-| These routes are loaded by the RouteServiceProvider.
-|
 */
 
-// ---------------------
-// Public Routes
-// ---------------------
+// --------------------
+// Home Page
+// --------------------
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/products/{product}', [HomeController::class, 'show'])
+    ->name('products.show');
+
+
+
+
+
+Route::middleware('guest:web')->group(function () {
+    Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
+    Route::post('register', [RegisteredUserController::class, 'store']);
+
+    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('login', [AuthenticatedSessionController::class, 'store']);
 });
-
-// ---------------------
-// Regular User Routes
-// ---------------------
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware('auth')->group(function () {
+// --------------------
+// Normal User Routes
+// --------------------
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [ProfileController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// ---------------------
-// Seller Routes
-// ---------------------
+// --------------------
+// Seller Public Pages
+// --------------------
+Route::prefix('seller')->name('seller.')->group(function () {
 
-// Seller Dashboard (only verified sellers)
-Route::middleware(['auth:seller'])->group(function () {
-    Route::get('/seller/dashboard', function () {
-        return view('seller.dashboard');
-    })->name('seller.dashboard');
+    Route::get('/', function () {
+        return view('seller.index');
+    })->name('index');
+
+    Route::get('/register', function () {
+        return view('seller.register');
+    })->name('register');
+
+    Route::post('/register', [SellerRegisterController::class, 'store'])->name('register.store');
+
+    Route::get('/login', [SellerLoginController::class, 'create'])->name('login');
+    Route::post('/login', [SellerLoginController::class, 'store'])->name('login.store');
 });
 
-// Seller Landing Page
-Route::get('/seller', function () {
-    return view('seller.index');
-})->name('seller.auth');
+// --------------------
+// Seller Protected Routes
+// --------------------
+// Make sure 'auth:seller' guard is used for all seller-only routes
+Route::middleware(['auth:seller'])->prefix('seller')->name('seller.')->group(function () {
 
-// Seller Registration
-Route::get('/seller/register', function () {
-    return view('seller.register');
-})->name('seller.register');
+    // Seller Dashboard
+    Route::get('/dashboard', function () {
+        $seller = auth('seller')->user();
+        abort_unless($seller && $seller->is_verified, 403);
+        return view('seller.dashboard');
+    })->name('dashboard');
 
-Route::post('/seller/register', function (\Illuminate\Http\Request $request) {
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:sellers,email',
-        'password' => 'required|confirmed|min:6',
-    ]);
+    // Logout
+    Route::post('/logout', [SellerLoginController::class, 'destroy'])->name('logout');
 
-    \App\Models\Seller::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => bcrypt($request->password),
-        'is_verified' => false,
-    ]);
+    // Seller Products
+    Route::get('/products/create', [SellerProductController::class, 'create'])->name('products.create');
+    Route::post('/products', [SellerProductController::class, 'store'])->name('products.store');
+});
+//cart
+// --------------------
+// Cart Routes (Only Logged-in Users)
+// --------------------
+Route::middleware(['auth'])->group(function () {
 
-    return redirect()->route('seller.login')
-        ->with('success', 'Registration complete! Wait for admin verification.');
-})->name('seller.register.store');
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 
-// Seller Login
-Route::get('/seller/login', [SellerLoginController::class, 'create'])->name('seller.login');
-Route::post('/seller/login', [SellerLoginController::class, 'store'])->name('seller.login.store');
+    Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
 
-// ---------------------
-// Include default auth routes for regular users
-// ---------------------
-Route::post('/seller/logout', [SellerLoginController::class, 'destroy'])
-    ->name('seller.logout');
+    Route::post('/cart/increase/{id}', [CartController::class, 'increase'])->name('cart.increase');
+
+    Route::post('/cart/decrease/{id}', [CartController::class, 'decrease'])->name('cart.decrease');
+
+    Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+
+    Route::post('/buy-now/{product}', [CartController::class, 'buyNow'])->name('buy.now');
+});
+
+
+
+
+// --------------------
+// Default Auth Routes (Users)
+// --------------------
 require __DIR__.'/auth.php';

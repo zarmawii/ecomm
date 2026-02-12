@@ -14,27 +14,30 @@ class SellerLoginController extends Controller
     }
 
     public function store(Request $request)
-{
-    $credentials = $request->validate([
-        'email' => ['required','email'],
-        'password' => ['required'],
-    ]);
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
 
-    if (Auth::guard('seller')->attempt([
-        'email' => $credentials['email'],
-        'password' => $credentials['password'],
-        'is_verified' => true, // only verified sellers
-    ], $request->filled('remember'))) {
-        $request->session()->regenerate();
+        if (Auth::guard('seller')->attempt([
+            'email' => $credentials['email'],
+            'password' => $credentials['password'],
+            'is_verified' => true,
+        ], $request->filled('remember'))) {
+            $request->session()->regenerate();
 
-        return redirect()->intended('/seller/dashboard');
+            // ✅ Check immediately
+            // dd(auth('seller')->check(), auth('seller')->id());
+
+            return redirect()->route('seller.dashboard')
+                             ->with('success', 'Logged in successfully!');
+        }
+
+        return back()->withErrors([
+            'email' => 'Credentials do not match or account not verified.',
+        ]);
     }
-
-    return back()->withErrors([
-        'email' => 'These credentials do not match our records or your account is not verified.',
-    ]);
-}
-
 
     public function destroy(Request $request)
     {
@@ -42,6 +45,7 @@ class SellerLoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/seller/login')->with('success', 'Logged out successfully.');;
+        return redirect()->route('seller.login')
+                         ->with('success', 'Logged out successfully.');
     }
 }

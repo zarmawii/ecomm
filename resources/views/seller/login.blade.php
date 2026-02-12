@@ -45,13 +45,7 @@
                        required>
             </div>
 
-            <div class="flex items-center justify-between mb-4">
-                <label class="flex items-center">
-                    <input type="checkbox" name="remember" class="mr-2">
-                    Remember me
-                </label>
-                <a href="{{ route('password.request') }}" class="text-blue-600 hover:underline">Forgot password?</a>
-            </div>
+            
 
             <button type="submit" 
                     class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 transition duration-200">
