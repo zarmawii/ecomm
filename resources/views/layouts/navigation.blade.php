@@ -19,16 +19,21 @@
                 </div>
             </div>
 
-
             <!-- RIGHT SIDE -->
             <div class="hidden sm:flex sm:items-center space-x-4">
 
                 @auth
-                    <!-- Cart Icon -->
-                    <a href="{{ route('cart.index') }}" 
-                       class="text-xl hover:scale-110 transition">
-                        🛒
-                    </a>
+                    <!-- Cart Icon with Count -->
+                    <div class="relative">
+                        <a href="{{ route('cart.index') }}" class="text-xl hover:scale-110 transition">
+                            🛒
+                        </a>
+                        @if($cartCount > 0)
+                            <span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                                {{ $cartCount }}
+                            </span>
+                        @endif
+                    </div>
 
                     <!-- User Dropdown -->
                     <x-dropdown align="right" width="48">
@@ -67,7 +72,6 @@
 
             </div>
 
-
             <!-- MOBILE HAMBURGER -->
             <div class="flex items-center sm:hidden">
                 <button @click="open = ! open"
@@ -92,7 +96,6 @@
         </div>
     </div>
 
-
     <!-- MOBILE MENU -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
 
@@ -116,9 +119,15 @@
 
                 <div class="mt-3 space-y-1">
 
-                    <x-responsive-nav-link :href="route('cart.index')">
+                    <!-- Mobile Cart Icon with Count -->
+                    <a href="{{ route('cart.index') }}" class="flex items-center">
                         🛒 Cart
-                    </x-responsive-nav-link>
+                        @if($cartCount > 0)
+                            <span class="ml-1 bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                                {{ $cartCount }}
+                            </span>
+                        @endif
+                    </a>
 
                     <x-responsive-nav-link :href="route('profile.edit')">
                         Profile
