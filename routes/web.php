@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\SellerLoginController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Seller;
+use App\Http\Controllers\RazorpayController;
 
 /*
 |--------------------------------------------------------------------------
@@ -85,3 +86,9 @@ Route::post('/seller/login', [SellerLoginController::class, 'store'])->name('sel
 Route::post('/seller/logout', [SellerLoginController::class, 'destroy'])
     ->name('seller.logout');
 require __DIR__.'/auth.php';
+
+
+
+Route::get('/razorpay', [RazorpayController::class, 'index']);
+Route::post('/razorpay/payment', [RazorpayController::class, 'payment'])->name('razorpay.payment');
+Route::post('/razorpay/success', [RazorpayController::class, 'success'])->name('razorpay.success');
