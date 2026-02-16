@@ -1,4 +1,6 @@
-<x-app-layout>
+@extends('layouts.seller')
+
+@section('content')
     <div class="max-w-xl mx-auto p-6 bg-white shadow rounded-lg">
         <h2 class="text-2xl font-bold mb-4">Add Product</h2>
 
@@ -23,4 +25,5 @@
             <button class="bg-green-600 text-black px-4 py-2 rounded">Submit for Approval</button>
         </form>
     </div>
-</x-app-layout>
+
+@endsection
