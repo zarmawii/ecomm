@@ -30,13 +30,7 @@ Route::get('/products/{product}', [HomeController::class, 'show'])->name('produc
 // --------------------
 // Guest Routes (Normal User)
 // --------------------
-Route::middleware('guest:web')->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
-    Route::post('register', [RegisteredUserController::class, 'store']);
 
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
-});
 
 // --------------------
 // Normal User Routes (Authenticated)
@@ -88,13 +82,14 @@ Route::middleware(['auth:seller'])->prefix('seller')->name('seller.')->group(fun
 Route::middleware(['auth'])->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 
-    Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+    
     Route::post('/cart/increase/{id}', [CartController::class, 'increase'])->name('cart.increase');
     Route::post('/cart/decrease/{id}', [CartController::class, 'decrease'])->name('cart.decrease');
     Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::post('/buy-now/{product}', [CartController::class, 'buyNow'])->name('buy.now');
+    
 });
-
+Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+Route::post('/buy-now/{product}', [CartController::class, 'buyNow'])->name('buy.now');
 // --------------------
 // Default Auth Routes (Users)
 // --------------------

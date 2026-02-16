@@ -57,7 +57,11 @@ class CartController extends Controller
 
     // Add Product
     public function add(Product $product)
-    {
+    {    
+        if (!auth()->check()) {
+        return redirect()->route('login')
+            ->with('error', 'Please login first to continue.');
+    }
         $cart = session()->get('cart', []);
 
         if (isset($cart[$product->id])) {
@@ -125,6 +129,10 @@ class CartController extends Controller
     // Buy Now (direct checkout)
     public function buyNow(Product $product)
     {
+         if (!auth()->check()) {
+        return redirect()->route('login')
+            ->with('error', 'Please login first to continue.');
+    }
         session()->put('cart', [
             $product->id => [
                 "name" => $product->name,
