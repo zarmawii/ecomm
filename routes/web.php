@@ -102,3 +102,9 @@ require __DIR__ . '/auth.php';
 Route::get('/razorpay', [RazorpayController::class, 'index']);
 Route::post('/razorpay/payment', [RazorpayController::class, 'payment'])->name('razorpay.payment');
 Route::post('/razorpay/success', [RazorpayController::class, 'success'])->name('razorpay.success');
+ //seller otp
+ Route::get('/seller/otp', [SellerLoginController::class, 'showOtpForm'])
+    ->name('seller.otp.form');
+
+Route::post('/seller/otp', [SellerLoginController::class, 'verifyOtp'])
+    ->name('seller.otp.verify');

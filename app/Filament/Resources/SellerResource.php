@@ -4,6 +4,8 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SellerResource\Pages;
 use App\Models\Seller;
+use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -11,7 +13,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SellerVerifiedMail;
-
 class SellerResource extends Resource
 {
     protected static ?string $model = Seller::class;
@@ -27,7 +28,10 @@ class SellerResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form->schema([]);
+        return $form->schema([Forms\Components\TextInput::make('phone')
+    ->label('Phone Number')
+    ->required()
+    ->unique(ignoreRecord: true),]);
     }
 
     public static function table(Table $table): Table
@@ -46,6 +50,10 @@ class SellerResource extends Resource
                 Tables\Columns\TextColumn::make('district')->label('District'),
                 Tables\Columns\TextColumn::make('village')->label('Village'),
                 Tables\Columns\TextColumn::make('pincode')->label('Pincode'),
+                Tables\Columns\TextColumn::make('phone')
+                         ->label('Phone')
+                         ->searchable()
+                         ->sortable(),
 
                 Tables\Columns\BadgeColumn::make('is_verified')
                     ->label('Verification Status')
