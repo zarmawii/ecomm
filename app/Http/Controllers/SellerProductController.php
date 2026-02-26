@@ -14,13 +14,15 @@ class SellerProductController extends Controller
     }
 
     public function store(Request $request)
-    {
+{
+    try {
+
         $request->validate([
             'name' => 'required',
             'category' => 'required|in:vegetable,fruit',
             'price' => 'required|numeric',
             'stock' => 'required|integer',
-            'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $imagePath = $request->file('image')->store('products', 'public');
@@ -35,7 +37,10 @@ class SellerProductController extends Controller
             'is_approved' => false,
         ]);
 
-        return redirect()->route('seller.products.create')
-                         ->with('success', 'Product submitted for admin approval.');
+        return back()->with('success', 'Product submitted for admin approval.');
+
+    } catch (\Exception $e) {
+        dd($e->getMessage());
     }
+}
 }
