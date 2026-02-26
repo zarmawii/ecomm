@@ -90,6 +90,10 @@
             <x-input-label for="password_confirmation" value="Confirm Password" />
             <x-text-input id="password_confirmation" name="password_confirmation" type="password" required />
         </div>
+        <div class="mb-4">
+    <label>Phone Number</label>
+    <input type="text" name="phone" required>
+</div>
 
         <div class="mt-6">
             <x-primary-button class="w-full">Register</x-primary-button>

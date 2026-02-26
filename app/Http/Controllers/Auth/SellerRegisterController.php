@@ -23,6 +23,7 @@ public function store(Request $request)
             'district' => 'nullable|string',
             'village'  => 'nullable|string',
             'pincode'  => 'required|digits:6',
+             'phone' => 'required|digits:10|unique:sellers,phone',
         ]);
 
          \App\Models\Seller::create([
@@ -33,6 +34,7 @@ public function store(Request $request)
             'district'    => $request->district,
             'village'     => $request->village,
             'pincode'     => $request->pincode,
+            'phone' => $request->phone,
             'is_verified' => false,
         ]);
 

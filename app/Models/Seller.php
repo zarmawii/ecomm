@@ -18,6 +18,9 @@ class Seller extends Authenticatable
         'district',
         'village',
         'pincode',
+        'phone',
+        'login_otp',
+    'otp_expires_at',
     ];
 
     protected $hidden = [
@@ -26,5 +29,7 @@ class Seller extends Authenticatable
 
     protected $casts = [
         'is_verified' => 'boolean',
+        'otp_expires_at' => 'datetime',
     ];
+    
 }
