@@ -14,10 +14,17 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Model path
 MODEL_PATH = os.path.join(BASE_DIR, "fruit_veg_unknown_model.h5")
+MODEL_URL = "https://drive.google.com/uc?export=download&id=18m5qs9G6avWnCJkJ9I8nDjLf0Sa8Yfzg"
 
 # Upload folder
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Download model if it does not exist
+if not os.path.exists(MODEL_PATH):
+    print("Downloading model...")
+    urllib.request.urlretrieve(MODEL_URL, MODEL_PATH)
+    print("Model downloaded.")
 
 # Load model once
 model = load_model(MODEL_PATH)
