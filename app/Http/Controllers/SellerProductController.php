@@ -53,11 +53,10 @@ class SellerProductController extends Controller
 
             // ✅ Send image to Flask AI
             $response = Http::attach(
-                'image',
-                file_get_contents(storage_path('app/public/' . $product->image)),
-                $product->image
-            )->post('http://127.0.0.1:5001/predict');
-
+    'image',
+    file_get_contents(storage_path('app/public/' . $product->image)),
+    $product->image
+)->post('https://edwardStore.onrender.com/predict');
             // If AI server not responding
             if (!$response->successful()) {
                 return back()->with('error', 'AI server not responding. Try again later.');
