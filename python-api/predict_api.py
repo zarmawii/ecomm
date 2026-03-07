@@ -1,60 +1,50 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import numpy as np
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
+from tensorflow.keras.layers import TFSMLayer
+from io import BytesIO
+from PIL import Image
 import os
-import urllib.request
-from tensorflow.keras.models import load_model
-import uuid
 
 app = Flask(__name__)
 CORS(app)
 
-# Base directory (important for deployment)
+# Base directory (python-api folder)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Model path
-MODEL_PATH = os.path.join(BASE_DIR, "fruit_veg_unknown_model.h5")
-MODEL_URL = "https://drive.google.com/uc?export=download&id=18m5qs9G6avWnCJkJ9I8nDjLf0Sa8Yfzg"
+# Model folder is one level up (ecomm-l10/fruit_veg_model)
+MODEL_PATH = os.path.join(BASE_DIR, "..", "fruit_veg_model")
 
-# Upload folder
-UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Load SavedModel using TFSMLayer (Keras 3 compatible)
+model = TFSMLayer(MODEL_PATH, call_endpoint='serving_default')
 
-# Download model if it does not exist
-if not os.path.exists(MODEL_PATH):
-    print("Downloading model...")
-    urllib.request.urlretrieve(MODEL_URL, MODEL_PATH)
-    print("Model downloaded.")
-
-# Load model once
-model = load_model(MODEL_PATH)
-
-# Must match training class order
+# Class order (must match training)
 classes = ['fresh', 'rotten', 'unknown']
 
 # Confidence threshold
 CONFIDENCE_THRESHOLD = 60
 
 
-def predict_image(img_path):
-    img = image.load_img(img_path, target_size=(128, 128))
-    img_array = image.img_to_array(img) / 255.0
+def predict_image(img_bytes):
+    """
+    Predict using in-memory image (no disk operations).
+    """
+    img = Image.open(BytesIO(img_bytes)).convert("RGB")
+    img = img.resize((128, 128))
+
+    img_array = np.array(img) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
 
-    prediction = model.predict(img_array, verbose=0)
+    # Predict (TFSMLayer returns dict)
+    prediction = model(img_array)
+    output = list(prediction.values())[0]
 
-    predicted_index = np.argmax(prediction)
+    predicted_index = np.argmax(output)
     predicted_class = classes[predicted_index]
-    confidence = float(np.max(prediction)) * 100
+    confidence = float(np.max(output)) * 100
 
-    # Low confidence → Out of bound
-    if confidence < CONFIDENCE_THRESHOLD:
-        return {"result": "Out of bound", "confidence": confidence}
-
-    if predicted_class == "unknown":
-        return {"result": "Out of bound", "confidence": confidence}
+    if confidence < CONFIDENCE_THRESHOLD or predicted_class == "unknown":
+        return {"result": "Out of bound", "confidence": round(confidence, 2)}
 
     return {
         "result": predicted_class,
@@ -72,28 +62,18 @@ def predict():
     if file.filename == "":
         return jsonify({"error": "Empty filename"}), 400
 
-    # Create unique filename
-    unique_filename = str(uuid.uuid4()) + ".jpg"
-    file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
-
-    # Save uploaded image
-    file.save(file_path)
-
     try:
-        result = predict_image(file_path)
+        img_bytes = file.read()
+        result = predict_image(img_bytes)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    finally:
-        # Delete image after prediction
-        if os.path.exists(file_path):
-            os.remove(file_path)
 
     return jsonify(result)
 
 
 @app.route("/", methods=["GET"])
 def home():
-    return jsonify({"message": "Fruit & Vegetable Freshness Prediction API"})
+    return jsonify({"message": "Fruit & Vegetable Freshness API"})
 
 
 if __name__ == "__main__":
