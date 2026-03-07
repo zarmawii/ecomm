@@ -2,26 +2,28 @@ FROM php:8.4-cli
 
 WORKDIR /var/www
 
-# Install system dependencies
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
     libzip-dev \
-    libicu-dev
+    libicu-dev \
+    sqlite3 \
+    libsqlite3-dev
 
 # Install PHP extensions
-RUN docker-php-ext-install zip intl
+RUN docker-php-ext-install zip intl pdo pdo_sqlite
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy project files
+# Copy project
 COPY . .
 
 # Install Laravel dependencies
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
-# Laravel setup
+# Clear caches
 RUN php artisan config:clear
 RUN php artisan route:clear
 RUN php artisan view:clear
