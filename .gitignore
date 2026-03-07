@@ -27,3 +27,4 @@ venv/
 # AI Model
 python-api/fruit_veg_unknown_model.h5
 python-api/uploads/
+python-api/fruit_veg_model/
