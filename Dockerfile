@@ -1,19 +1,25 @@
-FROM php:8.2-cli
+FROM php:8.4-cli
 
 WORKDIR /var/www
 
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
-    libzip-dev
+    libzip-dev \
+    libicu-dev
 
-RUN docker-php-ext-install zip
+# Install PHP extensions
+RUN docker-php-ext-install zip intl
 
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Copy project
 COPY . .
 
-RUN composer install --no-dev --optimize-autoloader
+# Install Laravel dependencies
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
 EXPOSE 10000
 
