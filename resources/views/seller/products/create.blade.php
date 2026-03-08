@@ -124,10 +124,21 @@ function stopCamera() {
 
 
 // Run AI when upload changes
-document.getElementById("imageInput")?.addEventListener("change", function() {
-    if (this.files.length > 0) {
-        runAI(this.files[0]);
+// Run AI when upload changes
+document.addEventListener("DOMContentLoaded", function() {
+
+    const imageInput = document.getElementById("imageInput");
+
+    if (imageInput) {
+        imageInput.addEventListener("change", function() {
+
+            if (this.files.length > 0) {
+                runAI(this.files[0]);
+            }
+
+        });
     }
+
 });
 
 
@@ -174,7 +185,7 @@ function runAI(file) {
             "Result: " + data.result;
 
         document.getElementById("confidence").innerHTML =
-            "Confidence: " + data.confidence.toFixed(2) + "%";
+    "Confidence: " + data.confidence + "%";
 
        if (data.result === "fresh") {
     enableSubmit();
