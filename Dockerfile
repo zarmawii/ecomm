@@ -1,6 +1,7 @@
 # =========================
-# Dockerfile for Laravel + Vite (Render Ready)
+# Dockerfile for Laravel + Vite + AI (Render Ready)
 # =========================
+
 FROM php:8.4-cli
 
 WORKDIR /var/www
@@ -18,6 +19,8 @@ RUN apt-get update && apt-get install -y \
     libsqlite3-dev \
     npm \
     nodejs \
+    python3 \
+    python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
 # -------------------------
@@ -77,11 +80,18 @@ RUN npm install --legacy-peer-deps
 RUN npm run build
 
 # -------------------------
+# AI Model (Python) setup - optional but safe
+# -------------------------
+RUN if [ -f "python-api/requirements.txt" ]; then \
+    pip3 install -r python-api/requirements.txt; \
+fi
+
+# -------------------------
 # Expose Render port
 # -------------------------
 EXPOSE $PORT
 
 # -------------------------
-# Start Laravel
+# Start Laravel (no background servers needed here)
 # -------------------------
 CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT
