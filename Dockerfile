@@ -32,7 +32,7 @@ RUN mkdir -p /var/www/database \
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
-
+RUN php artisan storage:link
 # Install Node dependencies and build frontend assets
 RUN npm install
 RUN npm run build
