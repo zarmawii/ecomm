@@ -19,6 +19,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Copy project
 COPY . .
+RUN mkdir -p database
+RUN touch database/database.sqlite
+RUN chmod -R 777 database
 
 # Install Laravel dependencies
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
