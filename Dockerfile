@@ -10,11 +10,10 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libicu-dev \
     sqlite3 \
-    libsqlite3-dev
-
-# Install Node.js (for Vite)
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-RUN apt-get install -y nodejs
+    libsqlite3-dev \
+    npm \
+    nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 RUN docker-php-ext-install zip intl pdo pdo_sqlite
@@ -26,13 +25,20 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY . .
 
 # Ensure SQLite database exists
-RUN mkdir -p /var/www/database \
-    && touch /var/www/database/database.sqlite \
-    && chmod -R 777 /var/www/database
+RUN mkdir -p database \
+    && touch database/database.sqlite \
+    && chmod -R 777 database
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
+
+# Link storage AFTER copying files
 RUN php artisan storage:link
+
+# Set permissions
+RUN chown -R www-data:www-data storage bootstrap/cache
+RUN chmod -R 775 storage bootstrap/cache
+
 # Install Node dependencies and build frontend assets
 RUN npm install
 RUN npm run build
@@ -43,8 +49,8 @@ RUN php artisan cache:clear
 RUN php artisan route:clear
 RUN php artisan view:clear
 
-# Expose Render port
-EXPOSE 10000
+# Expose port for Render
+EXPOSE $PORT
 
-# Start Laravel
-CMD touch /var/www/database/database.sqlite && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=10000
+# Start Laravel (migrate DB first)
+CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT
