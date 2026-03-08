@@ -26,9 +26,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY . .
 
 # Ensure SQLite database exists
-RUN mkdir -p database \
-    && touch database/database.sqlite \
-    && chmod -R 777 database
+RUN mkdir -p /var/www/database \
+    && touch /var/www/database/database.sqlite \
+    && chmod -R 777 /var/www/database
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
