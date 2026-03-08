@@ -47,4 +47,4 @@ RUN php artisan view:clear
 EXPOSE 10000
 
 # Start Laravel
-CMD php artisan serve --host=0.0.0.0 --port=10000
+CMD touch /var/www/database/database.sqlite && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=10000
