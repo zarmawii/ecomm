@@ -163,7 +163,7 @@ function runAI(file) {
     const formData = new FormData();
     formData.append("image", file);
 
-    fetch("http://127.0.0.1:5001/predict", {
+    fetch("https://aipredict.onrender.com/predict", {
         method: "POST",
         body: formData
     })
