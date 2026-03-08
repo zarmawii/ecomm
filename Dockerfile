@@ -1,5 +1,5 @@
 # =========================
-# Dockerfile for Laravel + Vite
+# Dockerfile for Laravel + Vite (Render Ready)
 # =========================
 FROM php:8.4-cli
 
@@ -53,12 +53,12 @@ RUN mkdir -p database \
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
 # -------------------------
-# Link storage AFTER copying files
+# Link storage
 # -------------------------
 RUN php artisan storage:link
 
 # -------------------------
-# Set permissions
+# Permissions
 # -------------------------
 RUN chown -R www-data:www-data storage bootstrap/cache
 RUN chmod -R 775 storage bootstrap/cache
@@ -67,22 +67,21 @@ RUN chmod -R 775 storage bootstrap/cache
 # Clear Laravel caches
 # -------------------------
 RUN php artisan config:cache
-RUN php artisan cache:clear
 RUN php artisan route:clear
 RUN php artisan view:clear
 
 # -------------------------
-# Install Node dependencies and build assets for production
+# Install Node dependencies and build assets
 # -------------------------
-RUN NODE_ENV=production npm install
-RUN NODE_ENV=production npm run build
+RUN npm install --legacy-peer-deps
+RUN npm run build
 
 # -------------------------
-# Expose port for Render
+# Expose Render port
 # -------------------------
 EXPOSE $PORT
 
 # -------------------------
-# Start Laravel with DB migration
+# Start Laravel
 # -------------------------
 CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT
