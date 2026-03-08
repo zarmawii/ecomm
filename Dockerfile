@@ -1,5 +1,5 @@
 # =========================
-# Dockerfile for Laravel + Vite + AI (Render Ready)
+# Laravel + Vite (Render Ready)
 # =========================
 
 FROM php:8.4-cli
@@ -7,7 +7,7 @@ FROM php:8.4-cli
 WORKDIR /var/www
 
 # -------------------------
-# Install system dependencies
+# System dependencies
 # -------------------------
 RUN apt-get update && apt-get install -y \
     git \
@@ -20,43 +20,42 @@ RUN apt-get update && apt-get install -y \
     npm \
     nodejs \
     python3 \
-    python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
 # -------------------------
-# Install PHP extensions
+# PHP extensions
 # -------------------------
 RUN docker-php-ext-install zip intl pdo pdo_sqlite
 
 # -------------------------
-# Install Composer
+# Composer
 # -------------------------
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # -------------------------
-# Copy project files
+# Project files
 # -------------------------
 COPY . .
 
 # -------------------------
-# Copy production environment
+# Environment
 # -------------------------
 COPY .env.production .env
 
 # -------------------------
-# Ensure SQLite database exists
+# SQLite
 # -------------------------
 RUN mkdir -p database \
     && touch database/database.sqlite \
     && chmod -R 777 database
 
 # -------------------------
-# Install PHP dependencies
+# PHP deps
 # -------------------------
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
 # -------------------------
-# Link storage
+# Storage
 # -------------------------
 RUN php artisan storage:link
 
@@ -67,31 +66,28 @@ RUN chown -R www-data:www-data storage bootstrap/cache
 RUN chmod -R 775 storage bootstrap/cache
 
 # -------------------------
-# Clear Laravel caches
+# Cache
 # -------------------------
 RUN php artisan config:cache
 RUN php artisan route:clear
 RUN php artisan view:clear
 
 # -------------------------
-# Install Node dependencies and build assets
+# Vite build
 # -------------------------
 RUN npm install --legacy-peer-deps
 RUN npm run build
 
 # -------------------------
-# AI Model (Python) setup - optional but safe
+# No Python pip here (not needed)
 # -------------------------
-RUN if [ -f "python-api/requirements.txt" ]; then \
-    pip3 install -r python-api/requirements.txt; \
-fi
 
 # -------------------------
-# Expose Render port
+# Expose
 # -------------------------
 EXPOSE $PORT
 
 # -------------------------
-# Start Laravel (no background servers needed here)
+# Start
 # -------------------------
 CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT
