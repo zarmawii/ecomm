@@ -15,14 +15,14 @@ class FilamentServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Restrict Filament admin to only users with is_admin = true
+        // Restrict Filament admin access to users with is_admin = true
         Filament::serving(function () {
             Filament::auth(function (User $user): bool {
                 return $user->is_admin;
             });
         });
 
-        // Optional: organize admin menu groups
+        // Optional: organize admin navigation
         Filament::registerNavigationGroups([
             // 'Products', 'Orders', etc.
         ]);
