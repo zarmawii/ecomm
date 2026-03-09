@@ -6,12 +6,12 @@ import tensorflow as tf
 from io import BytesIO
 import os
 
-app = Flask(**name**)
+app = Flask(__name__)
 CORS(app)
 
 # Base directory
 
-BASE_DIR = os.path.dirname(os.path.abspath(**file**))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Load TFLite model
 
@@ -81,6 +81,6 @@ return jsonify(result)
 def home():
 return jsonify({"message": "Fruit & Vegetable Freshness API"})
 
-if **name** == "**main**":
+if __name__ == "__main__":
 port = int(os.environ.get("PORT", 10000))
 app.run(host="0.0.0.0", port=port)
