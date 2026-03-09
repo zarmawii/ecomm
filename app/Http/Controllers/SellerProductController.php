@@ -56,7 +56,7 @@ class SellerProductController extends Controller
     'image',
     file_get_contents(storage_path('app/public/' . $product->image)),
     $product->image
-)->post('https://edwardStore.onrender.com/predict');
+)->post('https://aipredict.onrender.com/predict');
             // If AI server not responding
             if (!$response->successful()) {
                 return back()->with('error', 'AI server not responding. Try again later.');
