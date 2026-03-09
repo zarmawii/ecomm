@@ -4,21 +4,27 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Filament\Facades\Filament;
+use App\Models\User;
 
 class FilamentServiceProvider extends ServiceProvider
 {
-    public function boot(): void
-    {
-        // Block admin panel in production
-        Filament::serving(function () {
-            if (!app()->environment('local')) {
-                abort(403, 'Admin panel is only available locally.');
-            }
-        });
-    }
-
     public function register(): void
     {
         //
+    }
+
+    public function boot(): void
+    {
+        // Restrict Filament admin to only users with is_admin = true
+        Filament::serving(function () {
+            Filament::auth(function (User $user): bool {
+                return $user->is_admin;
+            });
+        });
+
+        // Optional: organize admin menu groups
+        Filament::registerNavigationGroups([
+            // 'Products', 'Orders', etc.
+        ]);
     }
 }
