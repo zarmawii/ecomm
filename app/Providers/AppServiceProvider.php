@@ -42,21 +42,10 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        // Auto-create Render admin if it doesn't exist
-        if (!User::where('email', 'admin@render.com')->exists()) {
-            User::create([
-                'name' => 'Render Admin',
-                'email' => 'admin@render.com',
-                'password' => Hash::make('password123'), // change to strong password
-                'is_admin' => true,
-            ]);
-        }
-
-        // Restrict Filament access to admin users
-        Filament::serving(function () {
-            Filament::auth(function (User $user): bool {
-                return $user->is_admin;
-            });
-        });
+       Filament::serving(function () {
+    Filament::auth(function ($user): bool {
+        return $user->is_admin; // only users marked as admin
+    });
+});
     }
 }
