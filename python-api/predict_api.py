@@ -1,80 +1,86 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import numpy as np
-from tensorflow.keras.layers import TFSMLayer
-from io import BytesIO
 from PIL import Image
+import tensorflow as tf
+from io import BytesIO
 import os
 
-app = Flask(__name__)
+app = Flask(**name**)
 CORS(app)
 
 # Base directory (python-api folder)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Model folder is one level up (ecomm-l10/fruit_veg_model)
-MODEL_PATH = os.path.join(BASE_DIR, "..", "fruit_veg_model")
+BASE_DIR = os.path.dirname(os.path.abspath(**file**))
 
-# Load SavedModel using TFSMLayer (Keras 3 compatible)
-model = TFSMLayer(MODEL_PATH, call_endpoint='serving_default')
+# Load TFLite model
 
-# Class order (must match training)
-classes = ['fresh', 'rotten', 'unknown']
+MODEL_PATH = os.path.join(BASE_DIR, "model.tflite")
 
-# Confidence threshold
+interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
+interpreter.allocate_tensors()
+
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
+
+# Class order (same as training)
+
+classes = ["fresh", "rotten", "unknown"]
+
 CONFIDENCE_THRESHOLD = 60
 
-
 def predict_image(img_bytes):
-    """
-    Predict using in-memory image (no disk operations).
-    """
-    img = Image.open(BytesIO(img_bytes)).convert("RGB")
-    img = img.resize((128, 128))
 
-    img_array = np.array(img) / 255.0
-    img_array = np.expand_dims(img_array, axis=0)
+```
+img = Image.open(BytesIO(img_bytes)).convert("RGB")
+img = img.resize((128,128))
 
-    # Predict (TFSMLayer returns dict)
-    prediction = model(img_array)
-    output = list(prediction.values())[0]
+img_array = np.array(img) / 255.0
+img_array = np.expand_dims(img_array, axis=0).astype("float32")
 
-    predicted_index = np.argmax(output)
-    predicted_class = classes[predicted_index]
-    confidence = float(np.max(output)) * 100
+interpreter.set_tensor(input_details[0]['index'], img_array)
+interpreter.invoke()
 
-    if confidence < CONFIDENCE_THRESHOLD or predicted_class == "unknown":
-        return {"result": "Out of bound", "confidence": round(confidence, 2)}
+output = interpreter.get_tensor(output_details[0]['index'])
 
-    return {
-        "result": predicted_class,
-        "confidence": round(confidence, 2)
-    }
+predicted_index = np.argmax(output)
+predicted_class = classes[predicted_index]
+confidence = float(np.max(output)) * 100
 
+if confidence < CONFIDENCE_THRESHOLD or predicted_class == "unknown":
+    return {"result": "Out of bound", "confidence": round(confidence,2)}
+
+return {
+    "result": predicted_class,
+    "confidence": round(confidence,2)
+}
+```
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    if "image" not in request.files:
-        return jsonify({"error": "No image uploaded"}), 400
 
-    file = request.files["image"]
+```
+if "image" not in request.files:
+    return jsonify({"error":"No image uploaded"}),400
 
-    if file.filename == "":
-        return jsonify({"error": "Empty filename"}), 400
+file = request.files["image"]
 
-    try:
-        img_bytes = file.read()
-        result = predict_image(img_bytes)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+if file.filename == "":
+    return jsonify({"error":"Empty filename"}),400
 
-    return jsonify(result)
+try:
+    img_bytes = file.read()
+    result = predict_image(img_bytes)
+except Exception as e:
+    return jsonify({"error":str(e)}),500
 
+return jsonify(result)
+```
 
 @app.route("/", methods=["GET"])
 def home():
-    return jsonify({"message": "Fruit & Vegetable Freshness API"})
+return jsonify({"message":"Fruit & Vegetable Freshness API"})
 
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001)
+if **name** == "**main**":
+port = int(os.environ.get("PORT",10000))
+app.run(host="0.0.0.0", port=port)
