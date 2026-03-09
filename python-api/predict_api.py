@@ -6,7 +6,7 @@ import tensorflow as tf
 from io import BytesIO
 import os
 
-app = Flask(**name**)
+app = Flask(__name__)
 CORS(app)
 
 # Base directory (python-api folder)
