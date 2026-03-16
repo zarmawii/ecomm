@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
-class HomeController extends Controller
+class MarketplaceController extends Controller
 {
     public function index(Request $request)
     {
@@ -16,11 +16,6 @@ class HomeController extends Controller
             })
             ->get();
 
-        return view('welcome', compact('products'));
-    }
-
-    public function show(Product $product)
-    {
-        return view('products.show', compact('product'));
+        return view('home', compact('products'));
     }
 }

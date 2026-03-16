@@ -15,6 +15,12 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\RazorpayController;
 
+use App\Http\Controllers\MarketplaceController;
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/home', [MarketplaceController::class, 'index'])->name('marketplace');
+});
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes

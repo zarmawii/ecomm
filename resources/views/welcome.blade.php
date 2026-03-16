@@ -72,6 +72,28 @@ style="background-image: url('/farm-bg.jpg');">
 
 </section>
 
+<!-- Search Bar -->
+<div class="max-w-7xl mx-auto px-6 mt-10">
+
+    <form method="GET" action="{{ route('home') }}" class="flex justify-center">
+
+        <input 
+            type="text" 
+            name="search"
+            placeholder="🔍 Search vegetables, fruits..."
+            class="w-96 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+        >
+
+        <button 
+            type="submit"
+            class="px-6 py-3 bg-green-600 text-white rounded-r-lg hover:bg-green-700 transition"
+        >
+            Search
+        </button>
+
+    </form>
+
+</div>
 
 </div>
 <div class="max-w-7xl mx-auto px-6 bg-white py-10 rounded-lg shadow">
@@ -126,7 +148,7 @@ style="background-image: url('/farm-bg.jpg');">
 
                     <form method="POST" action="{{ route('buy.now', $product->id) }}">
                         @csrf
-                        <button class="flex-1 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm shadow transition">
+                        <button class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition">
                             Buy Now
                         </button>
                     </form>

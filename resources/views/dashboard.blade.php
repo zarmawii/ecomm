@@ -29,8 +29,26 @@
     <p class="text-center text-green-100 mb-8">
     Buy directly from trusted local farmers
     </p>
+    <!-- Search Bar -->
+<div class="max-w-7xl mx-auto mb-8 px-6">
+    <form method="GET" action="{{ url()->current() }}">
+        <div class="flex justify-center">
+            <input 
+                type="text" 
+                name="search"
+                placeholder="Search fruits or vegetables..."
+                value="{{ request('search') }}"
+                class="w-full md:w-1/2 px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
 
-
+            <button 
+                type="submit"
+                class="bg-green-600 text-white px-6 py-2 rounded-r-lg hover:bg-green-700">
+                Search
+            </button>
+        </div>
+    </form>
+</div>
 
     <div class="bg-green-100 shadow-md sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-6 bg-white py-10 rounded-lg shadow">
