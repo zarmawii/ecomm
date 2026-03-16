@@ -5,71 +5,91 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Agri</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 min-h-screen">
+<body class="min-h-screen bg-gradient-to-b from-green-50 to-green-200">
 
     <!-- Navigation Bar -->
-    <nav class="bg-white dark:bg-gray-800 shadow px-6 py-4 flex justify-between items-center">
-        <!-- 🔔 Flash Messages -->
-<div class="max-w-7xl mx-auto px-6 mt-6">
+    <nav class="bg-green-100 shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
 
-    @if(session('error'))
-        <div class="bg-red-100 text-red-700 p-3 rounded mb-4">
-            {{ session('error') }}
-        </div>
-    @endif
+        <!-- Logo -->
+        <span class="text-2xl font-bold text-green-600 tracking-wide">
+        🌱 FarmFresh Finds
+        </span>
 
-    @if(session('success'))
-        <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
-            {{ session('success') }}
+        <!-- Right side buttons -->
+        <div class="flex items-center space-x-4">
+
+            <a href="{{ route('login') }}"
+               class="px-4 py-2 bg-white text-green-600 rounded-lg hover:bg-gray-200 transition shadow">
+                Login
+            </a>
+
+            <a href="{{ route('register') }}"
+               class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition shadow">
+                Register
+            </a>
+
         </div>
-    @endif
+
+    </div>
+</nav>
+
+
+
+    <!-- Hero Section -->
+<section class="relative text-white py-28 text-center bg-cover bg-center"
+style="background-image: url('/farm-bg.jpg');">
+
+    <div class="absolute inset-0 bg-green-900 opacity-20"></div>
+
+    <div class="relative z-10">
+        <h1 class="text-5xl font-bold mb-4">
+            Fresh From the Farm 🌱
+        </h1>
+
+        <p class="text-lg mb-6">
+            Buy fresh vegetables, fruits and farm products directly from farmers.
+        </p>
+
+        <div class="flex justify-center gap-4 mt-6">
+
+    <a href="/products"
+       class="bg-white text-green-700 px-6 py-3 rounded-lg font-semibold shadow hover:bg-green-100 transition">
+        Browse Products
+    </a>
+
+    <a href="{{ route('seller.register') }}"
+       class="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold shadow hover:bg-green-700 transition">
+        Want to Sell?
+    </a>
 
 </div>
-        <!-- Left side: App Name / Logo -->
-        <div>
-            <span class="text-xl font-bold text-gray-800 dark:text-gray-200">FarmFresh Finds</span>
-        </div>
 
-        <!-- Right side: Login / Register Buttons -->
-       <div class="flex space-x-3">
-    <!-- Normal User -->
-    <a href="{{ route('login') }}" 
-       class="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-black font-semibold rounded-md transition">
-        Login
-    </a>
-    <a href="{{ route('register') }}" 
-       class="px-4 py-2 bg-green-500 hover:bg-green-700 text-black font-semibold rounded-md transition">
-        Register
-    </a>
     </div>
 
-    </nav>
+</section>
 
-    <!-- Main Content -->
-    <main class="flex flex-col items-center justify-center mt-20 px-6 text-center">
-        <h1 class="text-5xl font-bold text-gray-800 dark:text-gray-100 mb-6">
-            Welcome to FarmFresh Finds!
-        </h1>
-        
-    </main>
-    <div class="mt-6 text-center">
-    <a href="{{ route('seller.register') }}" 
-       class="px-6 py-3 bg-green-600 text-black rounded hover:bg-green-700">
-       Want to Sell?
-    </a>
 
 </div>
-<div class="max-w-7xl mx-auto px-6">
+<div class="max-w-7xl mx-auto px-6 bg-white py-10 rounded-lg shadow">
+
+    <h2 id="products" class="text-3xl font-bold text-center mt-10 mb-5 text-gray-800 dark:text-black">
+    Fresh Products
+</h2>
+
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-6">
 
         @foreach($products as $product)
 
-        <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition duration-300 overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-1 transition duration-300 overflow-hidden">
+
 
             <!-- Image -->
-            <div class="w-full h-40 bg-amber-50">
+            <div class="w-full h-48 bg-gray-100 overflow-hidden">
+
                 <img 
                     src="{{ asset('storage/' . $product->image) }}"
                     class="w-full h-full object-cover"
@@ -81,7 +101,7 @@
             <div class="p-4">
 
                 <a href="{{ route('products.show', $product->id) }}">
-                    <h3 class="font-semibold text-lg hover:text-green-600 transition">
+                    <h3 class="font-bold text-lg hover:text-green-600 transition">
                         {{ $product->name }}
                     </h3>
                 </a>
@@ -99,14 +119,14 @@
 
                     <form method="POST" action="{{ route('cart.add', $product->id) }}">
                         @csrf
-                        <button class="flex-1 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm transition">
+                        <button class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm shadow transition">
                             Add to Cart
                         </button>
                     </form>
 
                     <form method="POST" action="{{ route('buy.now', $product->id) }}">
                         @csrf
-                        <button class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition">
+                        <button class="flex-1 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm shadow transition">
                             Buy Now
                         </button>
                     </form>
@@ -123,6 +143,48 @@
 
 
 
+<!-- Footer -->
+<footer class="bg-green-700 text-white mt-16">
+
+    <div class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        <!-- Brand -->
+        <div>
+            <h2 class="text-2xl font-bold mb-2">🌱 FarmFresh Finds</h2>
+            <p class="text-sm text-green-100">
+                Connecting farmers directly with customers for fresh and organic produce.
+            </p>
+        </div>
+
+        <!-- Links -->
+        <div>
+            <h3 class="font-semibold mb-3">Quick Links</h3>
+            <ul class="space-y-2 text-sm">
+                <li><a href="#" class="hover:underline">Home</a></li>
+                <li><a href="#products" class="hover:underline">Products</a></li>
+                <li><a href="{{ route('seller.register') }}" class="hover:underline">Become a Seller</a></li>
+            </ul>
+        </div>
+
+        <!-- Contact -->
+        <div>
+            <h3 class="font-semibold mb-3">Contact</h3>
+            <p class="text-sm text-green-100">
+                Email: support@farmfresh.com
+            </p>
+            <p class="text-sm text-green-100">
+                Phone: +91 9876543210
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="bg-green-800 text-center py-4 text-sm">
+        © 2026 FarmFresh Finds. All rights reserved.
+    </div>
+
+</footer>
 
 </body>
 </html>

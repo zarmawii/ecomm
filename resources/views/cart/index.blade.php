@@ -5,7 +5,8 @@
         </h2>
     </x-slot>
 
-    <div class="max-w-6xl mx-auto py-8 px-6">
+    <div class="max-w-6xl mx-auto py-10 px-6 bg-white/50 backdrop-blur rounded-xl shadow-lg">
+
 
         <!-- Success message -->
         @if(session('success'))
@@ -28,7 +29,7 @@
                         $total += $subtotal;
                     @endphp
 
-                    <div class="bg-white shadow rounded-lg p-4 flex items-center justify-between">
+                    <div class="bg-white border border-green-100 shadow-md rounded-xl p-5 flex items-center justify-between hover:shadow-lg transition">
                         <div class="flex items-center gap-4">
                             <img src="{{ asset('storage/' . $item['image']) }}"
                                  class="w-20 h-20 object-cover rounded">
@@ -44,16 +45,16 @@
                         <div class="flex items-center gap-2">
                             <form method="POST" action="{{ route('cart.decrease', $id) }}">
                                 @csrf
-                                <button class="px-3 py-1 bg-gray-200 rounded">-</button>
+                                <button class="px-3 py-1 bg-green-100 hover:bg-green-200 rounded font-bold">-</button>
                             </form>
                             <span class="px-3">{{ $item['quantity'] }}</span>
                             <form method="POST" action="{{ route('cart.increase', $id) }}">
                                 @csrf
-                                <button class="px-3 py-1 bg-gray-200 rounded">+</button>
+                                <button class="px-3 py-1 bg-green-100 hover:bg-green-200 rounded font-bold">+</button>
                             </form>
                             <form method="POST" action="{{ route('cart.remove', $id) }}">
                                 @csrf
-                                <button class="ml-4 px-3 py-1 bg-red-500 text-white rounded">Remove</button>
+                                <button class="ml-4 px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded shadow">Remove</button>
                             </form>
                         </div>
                     </div>
@@ -63,17 +64,26 @@
             </div>
 
             <!-- Total + Payment -->
-            <div class="mt-8 text-right">
+            <div class="mt-8 text-right text-gray-800">
                 <h3 class="text-xl font-bold">Total: ₹{{ $total }}</h3>
 
                 <!-- Proceed to Payment button -->
                 <button id="proceedPayment"
-                        class="mt-4 px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700">
+                        class="mt-4 px-8 py-3 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition font-semibold">
                     Proceed to Payment
                 </button>
+
             </div>
 
         @endif
+        <!-- Continue Shopping Button -->
+<div class="mt-10 flex justify-center">
+    <a href="{{ route('home') }}"
+       class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+       Continue Shopping
+    </a>
+</div>
+
 
         <!-- Hidden form to submit Razorpay payment -->
         <form name="razorpayForm" action="{{ route('razorpay.success') }}" method="POST">

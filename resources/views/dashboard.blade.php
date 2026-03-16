@@ -16,40 +16,40 @@
     @endif
 
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
+        <h2 class="font-bold text-2xl text-green-700">
+        🌱 FarmFresh Marketplace
         </h2>
     </x-slot>
 
-    <div class="py-12"> 
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <h2 class="text-xl font-bold mt-6 mb-4 text-center">
-        Available Products
+    <h2 class="text-3xl font-bold mt-6 mb-2 text-center text-green-100">
+    Fresh Farm Products
     </h2>
 
-    <div class="max-w-7xl mx-auto px-6">
+    <p class="text-center text-green-100 mb-8">
+    Buy directly from trusted local farmers
+    </p>
+
+
+
+    <div class="bg-green-100 shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 bg-white py-10 rounded-lg shadow">
+
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
 
             @foreach($products as $product)
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition overflow-hidden">
+                <div class="bg-white rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-1 transition duration-300 border border-green-100 overflow-hidden">
 
                     <!-- Image -->
-                    <div class="w-full h-48 bg-amber-50 overflow-hidden">
+                    <div class="w-full h-52 bg-green-50 overflow-hidden">
                         <img src="{{ asset('storage/' . $product->image) }}" class="w-full h-full object-cover" alt="{{ $product->name }}">
                     </div>
 
                     <!-- Product Details -->
                     <div class="p-4">
                         <a href="{{ route('products.show', $product->id) }}">
-                            <h3 class="font-bold text-lg hover:text-green-600">{{ $product->name }}</h3>
+                            <h3 class="font-bold text-lg hover:text-green-600 transition">
+                                {{ $product->name }}</h3>
                         </a>
                         <p class="text-sm text-gray-500 capitalize">{{ $product->category }}</p>
                         <p class="font-bold text-lg mt-1">₹{{ $product->price }}</p>
@@ -57,12 +57,12 @@
                         <div class="mt-4 flex gap-2">
                             <form method="POST" action="{{ route('cart.add', $product->id) }}" class="flex-1">
                                 @csrf
-                                <button class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-sm">Add to Cart</button>
+                                <button class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm shadow transition">
+                                Add to Cart
+                                </button>
                             </form>
 
-                            <button 
-                                class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
-                                onclick="buyNow({{ $product->id }}, '{{ $product->name }}', {{ $product->price }})">
+                            <button class="flex-1 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm shadow transition">
                                 Buy Now
                             </button>
                         </div>
@@ -130,5 +130,5 @@
             .catch(err => alert('Something went wrong: ' + err));
         }
     </script>
-
+</div>
 </x-app-layout>
